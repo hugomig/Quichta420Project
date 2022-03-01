@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
+    "target": "es2018",
+    "moduleResolution": "node",
+    "module": "commonjs",
     "strict": true,
+    "strictPropertyInitialization": false,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "outDir": "dist"
   }
 }
