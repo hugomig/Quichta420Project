@@ -5,6 +5,7 @@ import { authRoutes } from '../routes/auth';
 import { userRoutes } from '../routes/user';
 import { partiesRoutes } from '../routes/parties';
 import { swaggerOptions } from './swaggerOptions';
+import { participationRoutes } from '../routes/participation';
 
 export const fastify = fastifyFactory({ logger: process.env.NODE_ENV !== 'test' })
     .register(fastifyJwt, {
@@ -21,4 +22,5 @@ export const fastify = fastifyFactory({ logger: process.env.NODE_ENV !== 'test' 
     .register(fastifySwagger, swaggerOptions)
     .register(authRoutes, { prefix: '/auth' })
     .register(userRoutes, { prefix: '/users'})
-    .register(partiesRoutes, { prefix: '/parties' });
+    .register(partiesRoutes, { prefix: '/parties' })
+    .register(participationRoutes, { prefix: '/participations' });
