@@ -7,6 +7,9 @@ export const userRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: User }>({
         method: 'POST',
         url: '/',
+        schema: {
+            tags: ['User']
+        },
         handler: async (req, res) => {
             try {
                 const newUser = req.body;

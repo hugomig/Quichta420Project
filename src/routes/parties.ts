@@ -7,6 +7,9 @@ export const partiesRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: Party }>({
         method: 'POST',
         url: '/',
+        schema: {
+            tags: ['Party']
+        },
         handler: async (req, res) => {
             return res.send(200);
         }
@@ -15,6 +18,9 @@ export const partiesRoutes = async (fastify: FastifyInstance) => {
     fastify.route({
         method: 'GET',
         url: '/',
+        schema: {
+            tags: ['Party']
+        },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
         },
@@ -28,6 +34,9 @@ export const partiesRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Params: { id: string }}>({
         method: 'GET',
         url: '/:id',
+        schema: {
+            tags: ['Party']
+        },
         handler: async (req, res) => {
             const id = parseInt(req.params.id);
             if(isNaN(id)) return res.status(400).send();
@@ -38,6 +47,9 @@ export const partiesRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Params : { id: string }}>({
         method: 'PUT',
         url: '/:id',
+        schema: {
+            tags: ['Party']
+        },
         handler: async (req, res) => {
             const id = parseInt(req.params.id);
             if(isNaN(id)) return res.status(400).send();

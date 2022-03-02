@@ -1,8 +1,10 @@
-import fastifyFactory, { FastifyRequest, FastifyReply, HookHandlerDoneFunction} from 'fastify';
+import fastifyFactory, { FastifyRequest, FastifyReply } from 'fastify';
 import fastifyJwt from 'fastify-jwt';
+import fastifySwagger from 'fastify-swagger';
 import { authRoutes } from '../routes/auth';
 import { userRoutes } from '../routes/user';
 import { partiesRoutes } from '../routes/parties';
+import { swaggerOptions } from './swaggerOptions';
 
 export const fastify = fastifyFactory({ logger: process.env.NODE_ENV !== 'test' })
     .register(fastifyJwt, {
@@ -16,6 +18,7 @@ export const fastify = fastifyFactory({ logger: process.env.NODE_ENV !== 'test' 
             res.send(err);
         }
     })
+    .register(fastifySwagger, swaggerOptions)
     .register(authRoutes, { prefix: '/auth' })
     .register(userRoutes, { prefix: '/users'})
     .register(partiesRoutes, { prefix: '/parties' });

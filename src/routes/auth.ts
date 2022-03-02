@@ -7,6 +7,9 @@ export const authRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: { username: string, password: string } }>({
         method: 'POST',
         url: '/',
+        schema: {
+            tags: ['Auth']
+        },
         handler: async (req, res) => {
             const { username, password } = req.body;
             const user = await connection.getRepository(User).findOne({ username: username });
