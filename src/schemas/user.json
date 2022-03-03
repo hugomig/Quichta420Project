@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "user.json",
+    "type": "object",
+    "required": [
+        "firstname",
+        "lastname",
+        "username",
+        "email",
+        "password",
+        "birthdate"
+    ],
+    "properties": {
+        "firstname": {
+            "type": "string"
+        },
+        "lastname": {
+            "type": "string"
+        },
+        "username": {
+            "type": "string"
+        },
+        "email": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "birthdate": {
+            "type": "string",
+            "format": "date"
+        },
+        "relationshipStatus": {
+            "type": "string",
+            "enum": ["single", "in a relationship", "maried", "not your business"]
+        }
+    }
+}
