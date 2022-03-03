@@ -1,14 +1,17 @@
 import { FastifyInstance } from 'fastify';
+import { Invitation } from '../entities/Invitation';
 import { Party } from '../entities/Party';
 import { User } from '../entities/User';
 import { connection } from '../lib/connection';
+import * as InvitationSchema from '../schemas/invitation.json';
 
 export const invitationRoutes = async (fastify: FastifyInstance) => {
-    fastify.route<{ Body: { user: string, party: string }}>({
+    fastify.route<{ Body: { user: string, party: string } }>({
         method: 'POST',
         url: '/',
         schema: {
-            tags: ['Invitation']
+            tags: ['Invitation'],
+            body: InvitationSchema
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -19,7 +22,17 @@ export const invitationRoutes = async (fastify: FastifyInstance) => {
             const party = await connection.getRepository(Party).findOne({ id: req.body.party });
             if(!party) return res.status(400).send("Party not found verify the party id");
 
-            res.status(200).send(req.body);
+            const newInvitation = new Invitation();
+            newInvitation.user = user;
+            newInvitation.party = party;
+
+            const invitor = await connection.getRepository(User).findOne({ id: req.user.id });
+            if(!invitor) return res.status(400).send("Unexpected error check your auth token");
+
+            newInvitation.invitor = invitor;
+            await connection.getRepository(Invitation).insert(newInvitation);
+
+            res.status(200).send(newInvitation.id);
         }
     });
 

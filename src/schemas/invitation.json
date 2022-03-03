@@ -1,0 +1,24 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "invitation.json",
+    "type": "object",
+    "required": [
+        "party",
+        "user"
+    ],
+    "properties": {
+        "accepted": {
+            "type": "boolean"
+        },
+        "role": {
+            "type": "string",
+            "enum": ["organizer", "invitor", "participant"]
+        },
+        "party": {
+            "type": "string"
+        },
+        "user": {
+            "type": "string"
+        }
+    }
+}
