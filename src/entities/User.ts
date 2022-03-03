@@ -1,5 +1,13 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Invitation } from './Invitation';
 import { Party } from './Party';
+
+export enum RelationshipStatus{
+    Single = 'single',
+    InRelationship = 'in a relationship',
+    Maried = 'maried',
+    NotYourBusiness = 'not your business'
+}
 
 @Entity()
 export class User {
@@ -12,15 +20,24 @@ export class User {
     @Column()
     lastname: string;
 
-    @Column()
+    @Column({ unique: true })
     username: string;
 
-    @Column()
+    @Column({ unique: true })
     email: string;
 
     @Column()
     password: string;
 
-    @OneToMany(() => Party, party => party.organizer)
+    @Column()
+    birthdate: Date;
+
+    @Column({type: 'enum', enum: RelationshipStatus})
+    relationshipStatus: RelationshipStatus;
+
+    @OneToMany(() => Party, party => party.creator)
     parties: Party[];
+
+    @OneToMany(() => Invitation, invitation => invitation.user)
+    invitations: Invitation[];
 }
