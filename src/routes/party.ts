@@ -3,15 +3,19 @@ import { Party } from '../entities/Party';
 import { User } from '../entities/User';
 import { connection } from '../lib/connection';
 
-export const partiesRoutes = async (fastify: FastifyInstance) => {
+export const partyRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: Party }>({
         method: 'POST',
         url: '/',
         schema: {
             tags: ['Party']
         },
+        preValidation: async (req, res) => {
+            fastify.verifyJwt(req, res);
+        },
         handler: async (req, res) => {
-            return res.send(200);
+            const insertedPary = await connection.getRepository(Party).insert(req.body);
+            res.status(200).send(insertedPary.identifiers[0].id);
         }
     });
 
@@ -37,10 +41,13 @@ export const partiesRoutes = async (fastify: FastifyInstance) => {
         schema: {
             tags: ['Party']
         },
+        preValidation: async (req, res) => {
+            fastify.verifyJwt(req, res);
+        },
         handler: async (req, res) => {
-            const id = parseInt(req.params.id);
-            if(isNaN(id)) return res.status(400).send();
-            return res.send(id);
+            const party = await connection.getRepository(Party).findOne({ id: req.params.id });
+            if(!party) return res.status(400).send("Sorry this party doesn't exist");
+            res.status(200).send(party);
         }
     });
 
@@ -49,6 +56,9 @@ export const partiesRoutes = async (fastify: FastifyInstance) => {
         url: '/:id',
         schema: {
             tags: ['Party']
+        },
+        preValidation: async (req, res) => {
+            fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
             const id = parseInt(req.params.id);
