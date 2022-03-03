@@ -6,7 +6,8 @@ export enum ItemType {
     AlcoholicDrink = 'Alcoholic drink',
     Food = 'Food',
     Game = 'Game',
-    Accessory = 'Accessory'
+    Accessory = 'Accessory',
+    Other = 'Other'
 }
 
 @Entity()
@@ -14,10 +15,10 @@ export class Item{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({type: 'enum', enum: ItemType})
+    @Column({type: 'enum', enum: ItemType, default: ItemType.Other})
     type: ItemType;
 
-    @Column()  
+    @Column()
     name: string;
 
     @Column({nullable: true})
@@ -27,5 +28,5 @@ export class Item{
     quantity: number;
 
     @ManyToOne(() => Invitation, invitation => invitation.broughtItems, {nullable: false})
-    invitation: string;
+    invitation: Invitation;
 }

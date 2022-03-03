@@ -32,12 +32,15 @@ export class User {
     @Column()
     birthdate: Date;
 
-    @Column({type: 'enum', enum: RelationshipStatus})
+    @Column({type: 'enum', enum: RelationshipStatus, default: RelationshipStatus.NotYourBusiness})
     relationshipStatus: RelationshipStatus;
 
     @OneToMany(() => Party, party => party.creator)
     parties: Party[];
 
     @OneToMany(() => Invitation, invitation => invitation.user)
-    invitations: Invitation[];
+    receivedInvitations: Invitation[];
+
+    @OneToMany(() => Invitation, invitation => invitation.invitor)
+    sentInvitations: Invitation[];
 }
