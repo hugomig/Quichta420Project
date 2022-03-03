@@ -20,8 +20,8 @@ export const swaggerOptions: SwaggerOptions = {
             { name: 'Auth', description: 'Auth related end-points' },
             { name: 'User', description: 'User related end-points' },
             { name: 'Party', description: 'Party related end-points' },
-            { name: 'Participation', description: 'Participation of an User to a Party related end-points' },
-            { name: 'Item', description: 'Consumption of a participation related end-points'}
+            { name: 'Invitation', description: 'Invitation of an User to a Party related end-points' },
+            { name: 'Item', description: 'Consumption of an invitation related end-points'}
         ],
         definitions: {
             User: {
