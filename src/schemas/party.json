@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "party.json",
+    "type": "object",
+    "required": [
+        "name",
+        "location",
+        "date",
+        "description"
+    ],
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "date": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "description": {
+            "type": "string"
+        },
+        "minimumAge": {
+            "type": "number"
+        },
+        "maximumAge": {
+            "type": "number"
+        }
+    }
+}

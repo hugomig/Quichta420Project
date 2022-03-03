@@ -2,19 +2,27 @@ import { FastifyInstance } from 'fastify';
 import { Party } from '../entities/Party';
 import { User } from '../entities/User';
 import { connection } from '../lib/connection';
+import * as PartySchema from '../schemas/party.json';
 
 export const partyRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: Party }>({
         method: 'POST',
         url: '/',
         schema: {
-            tags: ['Party']
+            tags: ['Party'],
+            body: PartySchema
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const insertedPary = await connection.getRepository(Party).insert(req.body);
+            const newParty = req.body;
+            const user = await connection.getRepository(User).findOne({id: req.user.id});
+            if(!user) return res.status(400).send("Unexpected check your auth token");
+
+            newParty.creator = user;
+
+            const insertedPary = await connection.getRepository(Party).insert(newParty);
             res.status(200).send(insertedPary.identifiers[0].id);
         }
     });
