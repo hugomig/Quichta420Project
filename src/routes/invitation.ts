@@ -3,12 +3,12 @@ import { Party } from '../entities/Party';
 import { User } from '../entities/User';
 import { connection } from '../lib/connection';
 
-export const participationRoutes = async (fastify: FastifyInstance) => {
+export const invitationRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: { user: string, party: string }}>({
         method: 'POST',
         url: '/',
         schema: {
-            tags: ['Participation']
+            tags: ['Invitation']
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -27,7 +27,7 @@ export const participationRoutes = async (fastify: FastifyInstance) => {
         method: 'GET',
         url: '/party/:id',
         schema: {
-            tags: ['Participation']
+            tags: ['Invitation']
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -44,7 +44,7 @@ export const participationRoutes = async (fastify: FastifyInstance) => {
         method: 'GET',
         url: '/user/:id',
         schema: {
-            tags: ['Participation']
+            tags: ['Invitation']
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
