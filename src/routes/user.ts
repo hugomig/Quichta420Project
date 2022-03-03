@@ -22,4 +22,24 @@ export const userRoutes = async (fastify: FastifyInstance) => {
             }
         }
     });
+
+    fastify.route<{ Params: { username: string }}>({
+        method: 'GET',
+        url: '/:username',
+        schema: {
+            tags: ['User']
+        },
+        preValidation: async (req, res) => {
+            fastify.verifyJwt(req, res);
+        },
+        handler: async (req, res) => {
+            const user = await connection.getRepository(User).findOne({ username: req.params.username });
+            if(user){
+                res.status(200).send({ user: { id: user.id, username: user.username }});
+            }
+            else {
+                res.status(200).send("Sorry this user doesn't exist");
+            }
+        }
+    });
 }
