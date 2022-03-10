@@ -25,7 +25,7 @@ export class Party {
     @Column({ nullable: true })
     maximumAge: number;
 
-    @ManyToOne(() => User, user => user.parties, { nullable: false })
+    @ManyToOne(() => User, user => user.parties, { nullable: false, onDelete: 'CASCADE' })
     creator: User;
 
     @OneToMany(() => Invitation, invitation => invitation.party)

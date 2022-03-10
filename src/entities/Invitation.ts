@@ -21,13 +21,13 @@ export class Invitation {
     @Column({type: 'enum', enum: UserRole, default: UserRole.Participant})
     role: UserRole;
 
-    @ManyToOne(() => Party, party => party.invitations, {nullable: false})
+    @ManyToOne(() => Party, party => party.invitations, {nullable: false, onDelete: 'CASCADE'})
     party: Party;
 
-    @ManyToOne(() => User, user => user.receivedInvitations, {nullable: false})
+    @ManyToOne(() => User, user => user.receivedInvitations, {nullable: false, onDelete: 'CASCADE'})
     user: User;
 
-    @ManyToOne(() => User, user => user.sentInvitations, {nullable: false})
+    @ManyToOne(() => User, user => user.sentInvitations, {nullable: false, onDelete: 'CASCADE'})
     invitor: User;
 
     @OneToMany(() => Item, item => item.invitation)

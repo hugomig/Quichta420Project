@@ -27,6 +27,6 @@ export class Item{
     @Column({ default: 1 })
     quantity: number;
 
-    @ManyToOne(() => Invitation, invitation => invitation.broughtItems, {nullable: false})
+    @ManyToOne(() => Invitation, invitation => invitation.broughtItems, {nullable: false, onDelete: 'CASCADE'})
     invitation: Invitation;
 }
