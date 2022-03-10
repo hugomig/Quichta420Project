@@ -16,7 +16,8 @@ export const authRoutes = async (fastify: FastifyInstance) => {
             if(user){
                 if(await comparePassword(password, user.password)){
                     const token = fastify.jwt.sign({
-                        id: user.id
+                        id: user.id,
+                        username: username
                     },{
                         expiresIn: '1d'
                     });
