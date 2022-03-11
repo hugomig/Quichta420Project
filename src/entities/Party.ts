@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 import { Invitation } from './Invitation';
 import { User } from './User';
 
@@ -20,10 +20,10 @@ export class Party {
     description: string;
 
     @Column({ nullable: true })
-    minimumAge: number;
+    minimumAge?: number;
 
     @Column({ nullable: true })
-    maximumAge: number;
+    maximumAge?: number;
 
     @ManyToOne(() => User, user => user.parties, { nullable: false, onDelete: 'CASCADE' })
     creator: User;

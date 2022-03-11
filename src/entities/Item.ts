@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn } from 'typeorm';
 import { Invitation } from './Invitation';
 
 export enum ItemType {
@@ -27,6 +27,7 @@ export class Item{
     @Column({ default: 1 })
     quantity: number;
 
-    @ManyToOne(() => Invitation, invitation => invitation.broughtItems, {nullable: false, onDelete: 'CASCADE'})
+    @ManyToOne(() => Invitation, invitation => invitation.broughtItems, {nullable: false, onDelete: 'CASCADE', eager: true})
+    @JoinColumn()
     invitation: Invitation;
 }
