@@ -2,7 +2,9 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { Invitation, UserRole } from "../entities/Invitation";
 import { Party } from "../entities/Party";
 import { User } from "../entities/User";
+import { Item } from "../entities/Item";
 import { connection } from "./connection";
+
 
 export const checkUserExists: (username: string, req: FastifyRequest, res: FastifyReply) => Promise<User | null> = async (username, req, res) => {
     const user = await connection.getRepository(User).findOne({ username });
@@ -103,4 +105,13 @@ export const checkIfUserIsAbleToDeleteInvitation = async (invitation: Invitation
 
     res.status(400).send("You are not able to delete this invitation");
     return false;
+}
+
+export const checkItemExists: (id: string, req: FastifyRequest, res: FastifyReply) => Promise<Item | null> = async (id, req, res) => { 
+    const item = await connection.getRepository(Item).findOne({ id });
+    if(!item){
+        res.status(400).send("Sorry this item doesn't exist");
+        return null;
+    }
+    return item;
 }
