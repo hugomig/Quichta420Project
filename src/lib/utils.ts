@@ -2,7 +2,9 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { Invitation, UserRole } from "../entities/Invitation";
 import { Party } from "../entities/Party";
 import { User } from "../entities/User";
+import { Item } from "../entities/Item";
 import { connection } from "./connection";
+
 
 export const checkUserExists: (username: string, req: FastifyRequest, res: FastifyReply) => Promise<User | null> = async (username, req, res) => {
     const user = await connection.getRepository(User).findOne({ username });
@@ -52,4 +54,13 @@ export const checkIsInvitedToParty: (party: Party, user: User, req: FastifyReque
         return null;
     }
     return invitation;
+}
+
+export const checkItemExists: (id: string, req: FastifyRequest, res: FastifyReply) => Promise<Item | null> = async (id, req, res) => { 
+    const item = await connection.getRepository(Item).findOne({ id });
+    if(!item){
+        res.status(400).send("Sorry this item doesn't exist");
+        return null;
+    }
+    return item;
 }
