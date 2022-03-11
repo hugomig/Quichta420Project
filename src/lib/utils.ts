@@ -45,11 +45,62 @@ export const checkIsOrganizerForParty = async (party: Party, user: User, req: Fa
     return false;
 }
 
-export const checkIsInvitedToParty: (party: Party, user: User, req: FastifyRequest, res: FastifyReply) => Promise<Invitation | null> = async (party, user, req, res) => {
+export const checkIsInvitorForParty = async (party: Party, user: User, req: FastifyRequest, res: FastifyReply) => {
+    const myParty = await connection.getRepository(Party).findOne({ id: party.id, creator: user });
+    if(myParty){
+        return true;
+    }
+    const invitation = await connection.getRepository(Invitation).findOne({ user, party });
+    if(invitation){
+        if(invitation.role === UserRole.Organizer || invitation.role === UserRole.Invitor){
+            return true;
+        }
+    }
+    res.status(400).send("User not invitor for this party");
+    return false;
+}
+
+export const checkIsInvitedToParty = async (party: Party, user: User, req: FastifyRequest, res: FastifyReply) => {
+    const myParty = await connection.getRepository(Party).findOne({ id: party.id, creator: user });
+    if(myParty){
+        return true;
+    }
     const invitation = await connection.getRepository(Invitation).findOne({ party: party, user: user });
+    if(invitation){
+        return true;
+    }
+    res.status(400).send("Sorry you are not invited to this party");
+    return false;
+}
+
+export const checkInvitationExists: (id: string, req: FastifyRequest, res: FastifyReply) => Promise<Invitation | null> =  async (id, req, res) => {
+    const invitation = await connection.getRepository(Invitation).findOne({ id: id });
     if(!invitation){
-        res.status(400).send("Sorry you are not invited to this party");
+        res.status(400).send("Invitation not found");
         return null;
     }
+
     return invitation;
+}
+
+export const checkIfUserIsAbleToDeleteInvitation = async (invitation: Invitation, user: User, req: FastifyRequest, res: FastifyReply) => {
+    //If user is the invited
+    if(invitation.user === user) return true;
+    
+    //If user is the creator of the party
+    const myParty = await connection.getRepository(Party).findOne({ id: invitation.party.id, creator: user });
+    if(myParty){
+        return true;
+    }
+
+    //If user is an organizer of the party
+    const myInvitation = await connection.getRepository(Invitation).findOne({ user: user, party: invitation.party });
+    if(myInvitation){
+        if(myInvitation.role === UserRole.Organizer){
+            return true;
+        }
+    }
+
+    res.status(400).send("You are not able to delete this invitation");
+    return false;
 }

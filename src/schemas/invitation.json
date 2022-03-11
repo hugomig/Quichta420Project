@@ -3,8 +3,8 @@
     "$id": "invitation.json",
     "type": "object",
     "required": [
-        "party",
-        "user"
+        "partyId",
+        "username"
     ],
     "properties": {
         "accepted": {
@@ -14,10 +14,10 @@
             "type": "string",
             "enum": ["organizer", "invitor", "participant"]
         },
-        "party": {
+        "partyId": {
             "type": "string"
         },
-        "user": {
+        "username": {
             "type": "string"
         }
     }
