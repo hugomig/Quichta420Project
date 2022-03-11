@@ -12,7 +12,7 @@ export const swaggerOptions: SwaggerOptions = {
             url: 'http://github.com/hugomig/Quichta420Project',
             description: 'Click here to see our github repo :)'
         },
-        host: 'localhost',
+        host: 'localhost:3000',
         schemes: ['http'],
         consumes: ['application/json'],
         produces: ['application/json'],
