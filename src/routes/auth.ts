@@ -8,7 +8,15 @@ export const authRoutes = async (fastify: FastifyInstance) => {
         method: 'POST',
         url: '/',
         schema: {
-            tags: ['Auth']
+            tags: ['Auth'],
+            body: {
+                username: {
+                    type: 'string'
+                },
+                password: {
+                    type: 'string'
+                }
+            }
         },
         handler: async (req, res) => {
             const { username, password } = req.body;
