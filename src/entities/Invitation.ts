@@ -36,3 +36,23 @@ export class Invitation {
     @OneToMany(() => Item, item => item.invitation)
     broughtItems: Item[];
 }
+
+export const filterInvitation: (invitation: Invitation) => FilteredInvitation = (invitation) => {
+    return {
+        id: invitation.id,
+        user: invitation.user.username,
+        party: invitation.party,
+        invitor: invitation.invitor.username,
+        accepted: invitation.accepted,
+        role: invitation.role
+    }
+}
+
+export interface FilteredInvitation {
+    id: string,
+    user: string,
+    party: Party,
+    invitor: string,
+    accepted: boolean,
+    role: string
+}
