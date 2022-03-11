@@ -3,6 +3,7 @@ import { connection } from '../lib/connection';
 import { RelationshipStatus, User } from '../entities/User';
 import { hashPassword } from '../lib/passwordEncryption';
 import * as UserSchema from '../schemas/user.json';
+import { checkIfUserIsMe, checkUserExists } from '../lib/utils';
 
 export const userRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: User }>({
@@ -73,10 +74,9 @@ export const userRoutes = async (fastify: FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const user = await connection.getRepository(User).findOne({ username: req.params.username });
-            if(!user) return res.send(400).send("User not found, check username");
-
-            if(user.id !== req.user.id) return res.status(400).send("You are not authorized to modify this user");
+            const user = await checkUserExists(req.params.username, req, res);
+            if(user === null) return;
+            if(!checkIfUserIsMe(user, req, res)) return;
             
             if(req.body.firstname) user.firstname = req.body.firstname;
             if(req.body.lastname) user.lastname = req.body.lastname;
@@ -106,9 +106,9 @@ export const userRoutes = async (fastify: FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const user = await connection.getRepository(User).findOne({ username: req.params.username });
-            if(!user) return res.status(400).send("User not found");
-            if(user.id !== req.user.id) return res.status(400).send("You are not authorized to delete this user");
+            const user = await checkUserExists(req.params.username, req, res);
+            if(user === null) return;
+            if(!checkIfUserIsMe(user, req, res)) return;
 
             await connection.getRepository(User).delete(user);
 
@@ -126,8 +126,8 @@ export const userRoutes = async (fastify: FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const user = await connection.getRepository(User).findOne({ username: req.params.username });
-            if(!user) return res.status(400).send("Sorry this user doesn't exist");
+            const user = await checkUserExists(req.params.username, req, res);
+            if(user === null) return;
 
             if(user.id === req.user.id){
                 return res.status(200).send({

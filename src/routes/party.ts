@@ -3,6 +3,7 @@ import { Invitation } from '../entities/Invitation';
 import { Party } from '../entities/Party';
 import { User } from '../entities/User';
 import { connection } from '../lib/connection';
+import { checkIsInvitedToParty, checkIsOrganizerForParty, checkPartyExists, checkUserExists } from '../lib/utils';
 import * as PartySchema from '../schemas/party.json';
 
 export const partyRoutes = async (fastify: FastifyInstance) => {
@@ -25,8 +26,8 @@ export const partyRoutes = async (fastify: FastifyInstance) => {
             newParty.minimumAge = req.body.minimumAge;
             newParty.maximumAge = req.body.maximumAge;
 
-            const user = await connection.getRepository(User).findOne({id: req.user.id});
-            if(!user) return res.status(400).send("Unexpected check your auth token");
+            const user = await checkUserExists(req.user.username, req, res);
+            if(user === null) return;
 
             newParty.creator = user;
 
@@ -46,7 +47,9 @@ export const partyRoutes = async (fastify: FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const user = await connection.getRepository(User).findOne({ id: req.user.id });
+            const user = await checkUserExists(req.user.username, req, res);
+            if(user === null) return;
+
             const invitations = await connection.getRepository(Invitation).find({ user: user });
 
             const invitedParties: Party[] = []
@@ -71,8 +74,8 @@ export const partyRoutes = async (fastify: FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const user = await connection.getRepository(User).findOne({ username: req.params.username });
-            if(!user) return res.status(400).send("User not found");
+            const user = await checkUserExists(req.params.username, req, res);
+            if(user === null) return;
 
             const parties = await connection.getRepository(Party).find({ creator: user });
 
@@ -105,17 +108,17 @@ export const partyRoutes = async (fastify: FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const party = await connection.getRepository(Party).findOne({ id: req.params.id });
-            if(!party) return res.status(400).send("Sorry this party doesn't exist");
+            const party = await checkPartyExists(req.params.id, req, res);
+            if(party === null) return;
 
-            const user = await connection.getRepository(User).findOne({ id: req.user.id });
-            if(!user) return res.status(400).send("Unexpected");
+            const user = await checkUserExists(req.user.username, req, res);
+            if(user === null) return;
 
             const myParty = await connection.getRepository(Party).findOne({ id: req.params.id, creator: user });
             if(myParty) return res.status(200).send(party);
 
-            const invitation = await connection.getRepository(Invitation).findOne({ party: party, user: user });
-            if(!invitation) return res.status(400).send("Sorry you are not invited to this party");
+            const invitation = await checkIsInvitedToParty(party, user, req, res);
+            if(invitation === null) return;
 
             res.status(200).send(party);
         }
@@ -144,24 +147,24 @@ export const partyRoutes = async (fastify: FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const party = await connection.getRepository(Party).findOne({ id: req.params.id });
-            if(!party) return res.status(400).send("Party not found");
+            const party = await checkPartyExists(req.params.id, req, res);
+            if(party === null) return;
 
-            const user = await connection.getRepository(User).findOne({ id: req.user.id });
-            if(!user) return res.status(400).send("Unexpected");
-            const myParty = await connection.getRepository(Party).findOne({ id: req.params.id, creator: user });
-            if(!myParty) return res.status(400).send("You are not authorized to edit this party");
+            const user = await checkUserExists(req.user.username, req, res);
+            if(user === null) return;
 
-            if(req.body.name) myParty.name = req.body.name;
-            if(req.body.location) myParty.location = req.body.location;
-            if(req.body.date) myParty.date = req.body.date;
-            if(req.body.description) myParty.description = req.body.description;
-            if(req.body.minimumAge) myParty.minimumAge = req.body.minimumAge;
-            if(req.body.maximumAge) myParty.maximumAge = req.body.maximumAge;
+            if(!await checkIsOrganizerForParty(party, user, req, res)) return;
 
-            await connection.getRepository(Party).save(myParty);
+            if(req.body.name) party.name = req.body.name;
+            if(req.body.location) party.location = req.body.location;
+            if(req.body.date) party.date = req.body.date;
+            if(req.body.description) party.description = req.body.description;
+            if(req.body.minimumAge) party.minimumAge = req.body.minimumAge;
+            if(req.body.maximumAge) party.maximumAge = req.body.maximumAge;
 
-            res.status(200).send(myParty);
+            await connection.getRepository(Party).save(party);
+
+            res.status(200).send(party);
         }
     });
 
@@ -175,15 +178,15 @@ export const partyRoutes = async (fastify: FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            const party = await connection.getRepository(Party).findOne({ id: req.params.id });
-            if(!party) return res.status(400).send("Party not found");
+            const party = await checkPartyExists(req.params.id, req, res);
+            if(party === null) return;
 
-            const user = await connection.getRepository(User).findOne({ id: req.user.id });
-            if(!user) return res.status(400).send("Unexpected");
-            const myParty = await connection.getRepository(Party).findOne({ id: req.params.id, creator: user });
-            if(!myParty) return res.status(400).send("You are not authorized to edit this party");
+            const user= await checkUserExists(req.user.username, req, res);
+            if(user === null) return;
 
-            await connection.getRepository(Party).remove(myParty);
+            if(!await checkIsOrganizerForParty(party, user, req, res)) return;
+
+            await connection.getRepository(Party).remove(party);
 
             res.status(200).send("Party successfully deleted");
         }
