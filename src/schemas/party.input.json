@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/schema",
-    "$id": "party.json",
+    "$id": "party.input.json",
     "type": "object",
     "required": [
         "name",

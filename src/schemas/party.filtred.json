@@ -1,0 +1,40 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "party.filtred.json",
+    "type": "object",
+    "required": [
+        "id",
+        "name",
+        "location",
+        "date",
+        "description",
+        "creator"
+    ],
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        },
+        "date": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "description": {
+            "type": "string"
+        },
+        "creator": {
+            "type": "string"
+        },
+        "minimumAge": {
+            "type": "number"
+        },
+        "maximumAge": {
+            "type": "number"
+        }
+    }
+}
