@@ -1,4 +1,8 @@
-import { SwaggerOptions } from "fastify-swagger"
+import { SwaggerOptions } from "fastify-swagger";
+import * as UserSchema from '../schemas/user.json';
+import * as PartySchema from '../schemas/party.filtred.json';
+import * as InvitationSchema from '../schemas/invitation.filtered.json';
+import * as ItemSchema from '../schemas/item.filtered.json';
 
 export const swaggerOptions: SwaggerOptions = {
     routePrefix: '/doc',
@@ -24,17 +28,10 @@ export const swaggerOptions: SwaggerOptions = {
             { name: 'Item', description: 'Consumption of an invitation related end-points'}
         ],
         definitions: {
-            User: {
-                type: 'object',
-                required: ['id', 'email', 'firstName', 'lastName', 'username'],
-                properties: {
-                    id: { type: 'string', format: 'uuid' },
-                    firstName: { type: 'string' },
-                    lastName: { type: 'string' },
-                    email: { type: 'string', format: 'email' },
-                    username: { type: 'string' }
-                }
-            }
+            User: UserSchema,
+            Party: PartySchema,
+            Invitation: InvitationSchema,
+            Item: ItemSchema
         },
         securityDefinitions: {
             bearerAuth: {
