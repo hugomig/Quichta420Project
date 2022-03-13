@@ -1,9 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { connection } from '../lib/connection';
-import { RelationshipStatus, User } from '../entities/User';
+import { lightFilterUser, RelationshipStatus, User, filterUser, FilteredUser } from '../entities/User';
 import { hashPassword } from '../lib/passwordEncryption';
-import * as UserSchema from '../schemas/user.json';
 import { checkIfUserIsMe, checkUserExists } from '../lib/utils';
+import * as UserSchema from '../schemas/user.json';
+import * as UserFiltredSchema from '../schemas/user.filtred.json';
+import * as UserInputSchema from '../schemas/user.input.json';
 
 export const userRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: User }>({
@@ -11,7 +13,10 @@ export const userRoutes = async (fastify: FastifyInstance) => {
         url: '/',
         schema: {
             tags: ['User'],
-            body: UserSchema
+            body: UserInputSchema,
+            response: {
+                200: UserSchema
+            }
         },
         handler: async (req, res) => {
             try {
@@ -24,7 +29,7 @@ export const userRoutes = async (fastify: FastifyInstance) => {
                 const newUser = req.body;
                 newUser.password = await hashPassword(req.body.password);
                 await connection.getRepository(User).insert(newUser);
-                res.status(200).send(`User ${req.body.username} successfully created`);
+                res.status(200).send(lightFilterUser(newUser));
             }
             catch(err) {
                 res.status(400).send('Error creating new user');
@@ -36,7 +41,16 @@ export const userRoutes = async (fastify: FastifyInstance) => {
         method: 'GET',
         url: '/',
         schema: {
-            tags: ['User']
+            tags: ['User'],
+            response: {
+                200: {
+                    type: 'array',
+                    items: {
+                        type: "string"
+                    }
+                }
+            },
+            description: "Show all usernames"
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -50,6 +64,42 @@ export const userRoutes = async (fastify: FastifyInstance) => {
             }
 
             res.status(200).send({ usernames: usernames });
+        }
+    });
+
+    fastify.route<{ Params: { username: string }}>({
+        method: 'GET',
+        url: '/:username',
+        schema: {
+            tags: ['User'],
+            response: {
+                200: {
+                    anyOf: [
+                        UserFiltredSchema,
+                        UserSchema
+                    ]
+                }
+            },
+            description: "Show user infos and show more info for you than other users like birthdate and email for example",
+            params: {
+                username: {
+                    type: 'string'
+                }
+            }
+        },
+        preValidation: async (req, res) => {
+            fastify.verifyJwt(req, res);
+        },
+        handler: async (req, res) => {
+            const user = await checkUserExists(req.params.username, req, res);
+            if(user === null) return;
+
+            if(user.id === req.user.id){
+                return res.status(200).send(lightFilterUser(user));
+            }
+            else {
+                return res.status(200).send(filterUser(user));
+            }
         }
     });
 
@@ -68,7 +118,33 @@ export const userRoutes = async (fastify: FastifyInstance) => {
         method: 'PATCH',
         url: '/:username',
         schema: {
-            tags: ['User']
+            tags: ['User'],
+            body: {
+                firstname: {
+                    type: 'string'
+                },
+                lastname: {
+                    type: 'string'
+                },
+                email: {
+                    type: 'string'
+                },
+                birthdate: {
+                    type: 'string'
+                },
+                relationshipStatus: {
+                    type: 'string',
+                    enum: ["single", "in a relationship", "maried", "not your business"]
+                }
+            },
+            response: {
+                200: UserSchema
+            },
+            params: {
+                username: {
+                    type: 'string'
+                }
+            }
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -86,13 +162,7 @@ export const userRoutes = async (fastify: FastifyInstance) => {
 
             await connection.getRepository(User).save(user);
 
-            res.status(200).send({ user: {
-                firstname: user.firstname,
-                lastname: user.lastname,
-                email: user.email,
-                birthdate: user.birthdate,
-                relationshipStatus: user.relationshipStatus
-            }});
+            res.status(200).send(lightFilterUser(user));
         }
     });
 
@@ -100,7 +170,17 @@ export const userRoutes = async (fastify: FastifyInstance) => {
         method: 'DELETE',
         url: '/:username',
         schema: {
-            tags: ['User']
+            tags: ['User'],
+            response: {
+                200: {
+                    type: 'string'
+                }
+            },
+            params: {
+                username: {
+                    type: 'string'
+                }
+            }
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -113,48 +193,6 @@ export const userRoutes = async (fastify: FastifyInstance) => {
             await connection.getRepository(User).delete(user);
 
             res.status(200).send("User successfully deleted");
-        }
-    });
-
-    fastify.route<{ Params: { username: string }}>({
-        method: 'GET',
-        url: '/:username',
-        schema: {
-            tags: ['User']
-        },
-        preValidation: async (req, res) => {
-            fastify.verifyJwt(req, res);
-        },
-        handler: async (req, res) => {
-            const user = await checkUserExists(req.params.username, req, res);
-            if(user === null) return;
-
-            if(user.id === req.user.id){
-                return res.status(200).send({
-                    user: {
-                        id: user.id,
-                        username: user.username,
-                        firstname: user.firstname,
-                        lastname: user.lastname,
-                        email: user.email,
-                        parties: user.parties,
-                        receivedInvitations: user.receivedInvitations,
-                        sentInvitations: user.sentInvitations,
-                        birthdate: user.birthdate,
-                        relationshipStatus: user.relationshipStatus
-                    }
-                });
-            }
-            else {
-                return res.status(200).send({
-                    user: {
-                        id: user.id,
-                        username: user.username,
-                        birthdate: user.birthdate,
-                        relationshipStatus: user.relationshipStatus
-                    }
-                });
-            }
         }
     });
 }

@@ -1,13 +1,12 @@
 {
     "$schema": "http://json-schema.org/schema",
-    "$id": "user.json",
+    "$id": "user.filtred.json",
     "type": "object",
     "required": [
         "firstname",
         "lastname",
         "username",
-        "email",
-        "birthdate"
+        "relationshipStatus"
     ],
     "properties": {
         "id": {
@@ -21,13 +20,6 @@
         },
         "username": {
             "type": "string"
-        },
-        "email": {
-            "type": "string"
-        },
-        "birthdate": {
-            "type": "string",
-            "format": "date"
         },
         "relationshipStatus": {
             "type": "string",

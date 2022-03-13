@@ -44,3 +44,43 @@ export class User {
     @OneToMany(() => Invitation, invitation => invitation.invitor)
     sentInvitations: Invitation[];
 }
+
+export interface FilteredUser {
+    id: string,
+    username: string,
+    firstname: string,
+    lastname: string,
+    relationshipStatus: RelationshipStatus
+}
+
+export const filterUser: (user: User) => FilteredUser = (user) => {
+    return {
+        id: user.id,
+        username: user.username,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        relationshipStatus: user.relationshipStatus
+    }
+}
+
+export interface LightFilteredUser {
+    id: string,
+    username: string,
+    firstname: string,
+    lastname: string,
+    email: string,
+    birthdate: Date,
+    relationshipStatus: RelationshipStatus
+}
+
+export const lightFilterUser: (user: User) => LightFilteredUser = (user) => {
+    return {
+        id: user.id,
+        username: user.username,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        birthdate: user.birthdate,
+        relationshipStatus: user.relationshipStatus
+    }
+}
