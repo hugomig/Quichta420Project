@@ -4,7 +4,7 @@
     "type": "object",
     "required": [
         "id",
-        "partyId",
+        "party",
         "user",
         "invitor",
         "accepted",
@@ -14,7 +14,7 @@
         "id": {
             "type": "string"
         },
-        "partyId": {
+        "party": {
             "type": "string"
         },
         "user": {
