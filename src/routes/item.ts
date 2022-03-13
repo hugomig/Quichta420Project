@@ -49,7 +49,7 @@ export const itemRoutes = async (fastify : FastifyInstance) => {
         }
     });
 
-    fastify.route({
+    fastify.route<{ Params: { id: string }}>({
         method: 'GET',
         url: '/',
         schema: {
@@ -59,13 +59,37 @@ export const itemRoutes = async (fastify : FastifyInstance) => {
             fastify.verifyJwt(req, res);
         },
         handler: async (req, res) => {
-            res.send(200);
+            const item = checkItemExists(req.params.id, req, res)
+            const user
+            const b = checkInvitationExists(req.invitation)
+            const a = connection.getRepository(Item).find({invitation: invitation})
+
+            const ite = connection.getRepository(Item).findOne({ id: req.params.item})
+            res.status(200).send(item)
         }
     });
 
-    fastify.route<{ Params: { party: string }}>({
+    fastify.route<{ Params: { id: string } }>({
         method: 'GET',
-        url: '/:party',
+        url: '/:id',
+        schema: {
+            tags: ['Item']
+        },
+        preValidation: async (req, res) => {
+            fastify.verifyJwt(req, res);
+        },
+        handler: async (req, res) => {
+            const item = checkItemExists(req.params.id, req, res);
+            if(item == null) return;
+
+            const ite = connection.getRepository(Item).findOne({ id: req.params.item})
+            res.status(200).send(item)
+        }
+    })
+
+    fastify.route<{ Params: { item: string, party: string }}>({
+        method: 'GET',
+        url: '/party/:id',
         schema: {
             tags: ['Item']
         },
@@ -78,7 +102,7 @@ export const itemRoutes = async (fastify : FastifyInstance) => {
 
             res.send(200);
         }
-    });
+    })
 
     fastify.route<{ 
         Params: {
@@ -102,6 +126,10 @@ export const itemRoutes = async (fastify : FastifyInstance) => {
         handler: async (req, res) => {
             const item = await checkItemExists(req.params.id, req, res);
             if(item === null) return;
+
+            if( item.invitation.user.username !== req.user.username ){
+                return res.status(400).send("The user modifying the item should be the one who received the invitation");
+            }
             
             if(req.body.type) item.type = req.body.type;
             if(req.body.name) item.name = req.body.name;
@@ -128,7 +156,7 @@ export const itemRoutes = async (fastify : FastifyInstance) => {
         if(item === null) return;
 
         if( item.invitation.user.username !== req.user.username ){
-            res.status(400).send("The user deleting the item should be the one who received the invitation")
+            return res.status(400).send("The user deleting the item should be the one who received the invitation");
         }
 
         await connection.getRepository(Item).delete(item);

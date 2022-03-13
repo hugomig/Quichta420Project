@@ -7,9 +7,6 @@
         "invitation"
     ],
     "properties": {
-        "id":{
-            "type": "string"
-        },
         "type": {
             "type": "string",
             "enum": ["Non-alcoholic drink", "Alcoholic drink", "Food", "Game", "Accessory", "Other"]
