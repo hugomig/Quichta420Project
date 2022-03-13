@@ -115,3 +115,20 @@ export const checkItemExists: (id: string, req: FastifyRequest, res: FastifyRepl
     }
     return item;
 }
+
+export const checkItemIsEditableFromUser = (item: Item, user: User, req: FastifyRequest, res: FastifyReply) => {
+    if(item.invitation.user.id === user.id){
+        return true;
+    }
+    res.status(400).send("You are not authorize to deal with this item");
+    return false;
+}
+
+export const checkItemIsAccessibleUser = async (item: Item, user: User, req: FastifyRequest, res: FastifyReply) => {
+    const invitation = await connection.getRepository(Invitation).find({ user: user, party: item.invitation.party });
+    if(!invitation){
+        res.status(400).send("You are not authorize to deal with this item");
+        return false;
+    }
+    return true;
+}

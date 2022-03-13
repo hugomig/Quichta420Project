@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/schema",
-    "$id": "item.json",
+    "$id": "item.input.json",
     "type": "object",
     "required": [
         "name",

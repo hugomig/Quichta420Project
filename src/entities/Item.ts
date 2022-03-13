@@ -31,3 +31,23 @@ export class Item{
     @JoinColumn()
     invitation: Invitation;
 }
+
+export interface FilteredItem {
+    id: string,
+    type: ItemType,
+    name: string,
+    description: string,
+    quantity: number,
+    invitation: string
+}
+
+export const filterItem = (item: Item) => {
+    return {
+        id: item.id,
+        type: item.type,
+        name: item.name,
+        description: item.description,
+        quantity: item.quantity,
+        invitation: item.invitation.id
+    }
+}
