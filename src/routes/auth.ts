@@ -9,11 +9,17 @@ export const authRoutes = async (fastify: FastifyInstance) => {
         url: '/',
         schema: {
             tags: ['Auth'],
+            description: "Provide a JWT used for auth for the other requests",
             body: {
                 username: {
                     type: 'string'
                 },
                 password: {
+                    type: 'string'
+                }
+            },
+            response: {
+                200: {
                     type: 'string'
                 }
             }
