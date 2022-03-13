@@ -4,7 +4,8 @@ import { Party } from '../entities/Party';
 import { User } from '../entities/User';
 import { connection } from '../lib/connection';
 import { checkIfUserIsAbleToDeleteInvitation, checkIfUserIsMe, checkInvitationExists, checkIsInvitedToParty, checkIsInvitorForParty, checkIsOrganizerForParty, checkPartyExists, checkUserExists } from '../lib/utils';
-import * as InvitationSchema from '../schemas/invitation.json';
+import * as InvitationInputSchema from '../schemas/invitation.input.json';
+import * as FilteredInvitationSchema from '../schemas/invitation.filtered.json';
 
 export const invitationRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Body: { username: string, partyId: string } }>({
@@ -12,7 +13,10 @@ export const invitationRoutes = async (fastify: FastifyInstance) => {
         url: '/',
         schema: {
             tags: ['Invitation'],
-            body: InvitationSchema
+            body: InvitationInputSchema,
+            response: {
+                200: FilteredInvitationSchema
+            }
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -46,6 +50,21 @@ export const invitationRoutes = async (fastify: FastifyInstance) => {
     fastify.route({
         method: 'GET',
         url: '/',
+        schema: {
+            tags: ['Invitation'],
+            response: {
+                200: {
+                    receivedInvitations: {
+                        type: "array",
+                        items: FilteredInvitationSchema
+                    },
+                    sentInvitations: {
+                        type: "array",
+                        items: FilteredInvitationSchema
+                    }
+                }
+            }
+        },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
         },
@@ -77,7 +96,19 @@ export const invitationRoutes = async (fastify: FastifyInstance) => {
         method: 'GET',
         url: '/party/:partyId',
         schema: {
-            tags: ['Invitation']
+            tags: ['Invitation'],
+            response: {
+                200: {
+                    type: "array",
+                    items: FilteredInvitationSchema
+                }
+            },
+            params: {
+                partyId: {
+                    type: "string"
+                }
+            },
+            description: "Show every invitation for a certain party wich you are invited at"
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -113,7 +144,15 @@ export const invitationRoutes = async (fastify: FastifyInstance) => {
         method: 'PATCH',
         url: '/:id',
         schema: {
-            tags: ['Invitation']
+            tags: ['Invitation'],
+            response: {
+                200: FilteredInvitationSchema
+            },
+            params: {
+                id: {
+                    type: 'string'
+                }
+            }
         },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
@@ -146,6 +185,19 @@ export const invitationRoutes = async (fastify: FastifyInstance) => {
     fastify.route<{ Params: { id: string }}>({
         method: 'DELETE',
         url: '/:id',
+        schema: {
+            tags: ['Invitation'],
+            response: {
+                200: {
+                    type: "string"
+                }
+            },
+            params: {
+                id: {
+                    type: "string"
+                }
+            }
+        },
         preValidation: async (req, res) => {
             fastify.verifyJwt(req, res);
         },
